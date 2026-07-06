@@ -1,0 +1,75 @@
+# ============================================
+# Volcano 分布式训练 Job 示例
+# 4 卡训练（2 Pod × 2 GPU）
+# 提交：kubectl apply -f volcano-job-demo.yaml
+# ============================================
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: train-resnet50
+spec:
+  schedulerName: volcano         # 用 Volcano 调度器
+  minAvailable: 2                # Gang: 2 个 Pod 必须一起跑
+  queue: team-ml
+  priorityClassName: high-priority
+  maxRetry: 3
+  tasks:
+  - replicas: 1                  # Master（1 个）
+    name: master
+    policies:
+    - event: TaskCompleted
+      action: CompleteJob
+    template:
+      spec:
+        restartPolicy: OnFailure
+        containers:
+        - name: pytorch
+          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+          command:
+          - torchrun
+          - --nnodes=2
+          - --nproc_per_node=2
+          - --rdzv_backend=c10d
+          - --rdzv_endpoint=$(VC_MASTER_HOSTS):29500
+          - train.py
+          resources:
+            requests:
+              nvidia.com/gpu: "2"
+            limits:
+              nvidia.com/gpu: "2"
+          volumeMounts:
+          - name: dshm
+            mountPath: /dev/shm
+        volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+  - replicas: 1                  # Worker（1 个）
+    name: worker
+    template:
+      spec:
+        restartPolicy: OnFailure
+        containers:
+        - name: pytorch
+          image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+          command:
+          - torchrun
+          - --nnodes=2
+          - --nproc_per_node=2
+          - --rdzv_backend=c10d
+          - --rdzv_endpoint=$(VC_MASTER_HOSTS):29500
+          - train.py
+          resources:
+            requests:
+              nvidia.com/gpu: "2"
+            limits:
+              nvidia.com/gpu: "2"
+          volumeMounts:
+          - name: dshm
+            mountPath: /dev/shm
+        volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi

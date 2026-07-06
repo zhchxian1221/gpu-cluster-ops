@@ -1,0 +1,49 @@
+# ============================================
+# GPU 资源配额：按团队分配
+# 提交：kubectl apply -f gpu-quota.yaml
+# ============================================
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ml-training
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ml-inference
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ml-intern
+---
+# 训练团队：最多 8 张 GPU
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-quota
+  namespace: ml-training
+spec:
+  hard:
+    nvidia.com/gpu: "8"
+---
+# 推理团队：最多 4 张 GPU
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-quota
+  namespace: ml-inference
+spec:
+  hard:
+    nvidia.com/gpu: "4"
+---
+# 实习生：最多 2 张
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-quota
+  namespace: ml-intern
+spec:
+  hard:
+    nvidia.com/gpu: "2"

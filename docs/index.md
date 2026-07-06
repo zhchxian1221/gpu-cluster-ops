@@ -11,5 +11,5 @@
 | [03 GPU 监控](03-monitoring.md) | DCGM 部署、关键指标、告警阈值 | 📝 待写 |
 | [04 容器化 GPU](04-containerization.md) | NVIDIA Container Toolkit、Dockerfile、docker-compose | ✅ 已完成 |
 | [05 K8s GPU](05-kubernetes-gpu.md) | GPU Operator、节点标签、PyTorchJob、资源配额 | ✅ 已完成 |
-| [06 调度系统](06-scheduling.md) | Volcano/Slurm 调度策略 | 📝 待写 |
+| [06 调度系统](06-scheduling.md) | Volcano/Slurm/Kueue、Gang Scheduling、GPU 共享 | ✅ 已完成 |
 | [07 网络](07-networking.md) | RDMA、RoCE、NCCL 调优 | 📝 待写 |
